@@ -82,15 +82,28 @@ def test_get_users():
         }
     users = [gen_user(uid) for uid in range(20)]
 
+    total_count = 60004
+    link = {
+        u'first': u'https://qiita.com/api/v2/users?page=1',
+        u'next': u'https://qiita.com/api/v2/users?page=2',
+        u'last': u'https://qiita.com/api/v2/users?page={}'.format(1+total_count/20),
+    }
+    link_string = u", ".join(['<{}>; rel="{}"'.format(link[key], key) for key in link.keys()])
+
     responses.add(responses.GET,
                   "https://qiita.com/api/v2/users",
                   status=200,
                   body = json.dumps(users),
+                  adding_headers={
+                      u'Link': link_string,
+                      u'Total-Count': str(total_count),
+                  },
                   content_type="application/json")
 
     access_token = 'my_access_token'
     client = QiitaClient(access_token=access_token)
     res = client.list_users()
     eq_(res.to_json(), users)
-
+    eq_(res.result_count, str(total_count))
+    eq_(res.links, link)
 
