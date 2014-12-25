@@ -6,7 +6,7 @@ from __future__ import print_function
 from qiita_v2.client import QiitaClient
 from qiita_v2.exception import QiitaApiException
 import responses
-import simplejson as json
+import ujson as json
 
 from nose.tools import eq_, ok_
 
